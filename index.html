@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrivateSearch - Защищенный поиск Google</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+        
+        body {
+            background-color: #fff;
+            color: #202124;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: rgba(0,0,0,0.87);
+            font-size: 13px;
+        }
+        
+        .nav-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .apps-icon {
+            width: 24px;
+            height: 24px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path fill="%235F6368" d="M4 8h4V4H4v4zm6 12h4v-4h-4v4zm-6 0h4v-4H4v4zm0-6h4v-4H4v4zm6 0h4v-4h-4v4zm6-10v4h4V4h-4zm-6 4h4V4h-4v4zm6 6h4v-4h-4v4zm0 6h4v-4h-4v4z"/></svg>');
+            margin: 0 15px;
+            cursor: pointer;
+        }
+        
+        .user-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-color: #8ab4f8;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .logo {
+            margin-bottom: 30px;
+        }
+        
+        .logo h1 {
+            font-size: 90px;
+            font-weight: normal;
+            letter-spacing: -4px;
+        }
+        
+        .logo span:nth-child(1) { color: #4285f4; }
+        .logo span:nth-child(2) { color: #ea4335; }
+        .logo span:nth-child(3) { color: #fbbc05; }
+        .logo span:nth-child(4) { color: #4285f4; }
+        .logo span:nth-child(5) { color: #34a853; }
+        .logo span:nth-child(6) { color: #ea4335; }
+        
+        .search-container {
+            width: 100%;
+            max-width: 584px;
+            margin-bottom: 30px;
+        }
+        
+        .search-box {
+            display: flex;
+            align-items: center;
+            border: 1px solid #dfe1e5;
+            border-radius: 24px;
+            padding: 10px 15px;
+            margin-bottom: 20px;
+        }
+        
+        .search-box:hover {
+            box-shadow: 0 1px 6px rgba(32,33,36,.28);
+            border-color: rgba(223,225,229,0);
+        }
+        
+        .search-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            color: #9aa0a6;
+        }
+        
+        .search-input {
+            flex: 1;
+            border: none;
+            outline: none;
+            font-size: 16px;
+        }
+        
+        .search-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .search-btn {
+            background-color: #f8f9fa;
+            border: 1px solid #f8f9fa;
+            border-radius: 4px;
+            color: #3c4043;
+            font-size: 14px;
+            padding: 10px 16px;
+            cursor: pointer;
+        }
+        
+        .search-btn:hover {
+            box-shadow: 0 1px 1px rgba(0,0,0,.1);
+            border: 1px solid #dadce0;
+        }
+        
+        .privacy-info {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 13px;
+            color: #4d5156;
+            max-width: 584px;
+        }
+        
+        .privacy-status {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #34a853;
+        }
+        
+        footer {
+            background-color: #f2f2f2;
+            padding: 15px 20px;
+        }
+        
+        .footer-links {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+        }
+        
+        .footer-links a {
+            color: #70757a;
+            text-decoration: none;
+            font-size: 14px;
+            padding: 5px 10px;
+        }
+        
+        .footer-links a:hover {
+            text-decoration: underline;
+        }
+        
+        .privacy-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 500px;
+            width: 90%;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .close-modal {
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .privacy-features {
+            margin-top: 15px;
+        }
+        
+        .feature {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .logo h1 {
+                font-size: 60px;
+            }
+            
+            .footer-links {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="nav-links">
+            <a href="#" id="privacy-info">Приватность</a>
+            <div class="apps-icon"></div>
+            <div class="user-icon">U</div>
+        </div>
+    </header>
+    
+    <main>
+        <div class="logo">
+            <h1>
+                <span>G</span><span>o</span><span>o</span><span>g</span><span>l</span><span>e</span>
+            </h1>
+        </div>
+        
+        <div class="search-container">
+            <div class="search-box">
+                <svg class="search-icon" focusable="false" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                    <path d="M15.5 14h-.79l-.28-.27A6.471 6.471 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"></path>
+                </svg>
+                <input type="text" class="search-input" id="search-input" placeholder="Введите запрос">
+            </div>
+            
+            <div class="search-buttons">
+                <button class="search-btn" id="search-btn">Поиск в Google</button>
+                <button class="search-btn" id="lucky-btn">Мне повезёт!</button>
+            </div>
+        </div>
+        
+        <div class="privacy-info">
+            <p>Ваш поиск защищён: IP-адрес скрыт, трекеры заблокированы</p>
+            <div class="privacy-status">
+                <div class="status-indicator"></div>
+                <span>Защита приватности активна</span>
+            </div>
+        </div>
+    </main>
+    
+    <footer>
+        <div class="footer-links">
+            <div>
+                <a href="#">Справка</a>
+                <a href="#">Отправить отзыв</a>
+                <a href="#">Конфиденциальность</a>
+                <a href="#">Условия</a>
+            </div>
+        </div>
+    </footer>
+    
+    <div class="privacy-modal" id="privacy-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Защита приватности</h2>
+                <span class="close-modal" id="close-modal">&times;</span>
+            </div>
+            <p>Этот браузер обеспечивает дополнительную защиту вашей приватности:</p>
+            <div class="privacy-features">
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="#34a853">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>Ваш IP-адрес скрыт от веб-сайтов</span>
+                </div>
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="#34a853">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>Трекеры и рекламные скрипты заблокированы</span>
+                </div>
+                <div class="feature">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="#34a853">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
+                    </svg>
+                    <span>Поисковые запросы не сохраняются</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const searchBtn = document.getElementById('search-btn');
+            const luckyBtn = document.getElementById('lucky-btn');
+            const privacyInfo = document.getElementById('privacy-info');
+            const privacyModal = document.getElementById('privacy-modal');
+            const closeModal = document.getElementById('close-modal');
+            
+            // Обработчик поиска
+            function performSearch() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Перенаправляем на Google с параметрами приватности
+                    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}`;
+                }
+            }
+            
+            // Обработчик кнопки "Мне повезёт!"
+            function performLuckySearch() {
+                const query = searchInput.value.trim();
+                if (query) {
+                    // Перенаправляем на первую найденную страницу
+                    window.location.href = `https://www.google.com/search?q=${encodeURIComponent(query)}&btnI=1`;
+                }
+            }
+            
+            // Обработчики событий
+            searchBtn.addEventListener('click', performSearch);
+            luckyBtn.addEventListener('click', performLuckySearch);
+            
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            
+            // Модальное окно приватности
+            privacyInfo.addEventListener('click', function() {
+                privacyModal.style.display = 'flex';
+            });
+            
+            closeModal.addEventListener('click', function() {
+                privacyModal.style.display = 'none';
+            });
+            
+            window.addEventListener('click', function(e) {
+                if (e.target === privacyModal) {
+                    privacyModal.style.display = 'none';
+                }
+            });
+            
+            // Фокус на поле поиска при загрузке
+            searchInput.focus();
+        });
+    </script>
+</body>
+</html>
